@@ -1,0 +1,104 @@
+﻿@page "/vehicleInfo"
+@using System.Globalization
+@using practiseBlazor.DataAccess
+@using practiseBlazor.Models
+
+<PageTitle>Данные о транспорте</PageTitle>
+
+<h3>Информация о транспортном средстве</h3>
+
+<div class="mb-4">
+    <input @bind="SearchLicensePlate" @bind:event="oninput" type="text" class="form-control" placeholder="Введите ID машины"/>
+    <button class="btn btn-primary mt-2" @onclick="FetchVehicleInfo">Поиск</button>
+</div>
+
+@if (IsLoading)
+{
+    <div class="spinner-border text-primary" role="status">
+        <span class="visually-hidden">Загрузка...</span>
+    </div>
+}
+else if (VehicleData != null)
+{
+    <div class="card">
+        <div class="card-header bg-primary text-white">
+            Детали транспортного средства
+        </div>
+        <div class="card-body">
+            <h5 class="card-title">Марка: @VehicleData.Make</h5>
+            <p class="card-text">
+                <strong>Модель:</strong> @VehicleData.Model
+            </p>
+            <p class="card-text">
+                <strong>Год выпуска:</strong> @VehicleData.Year
+            </p>
+            <p class="card-text"><strong>Вместимость:</strong> @VehicleData.Capacity</p>
+            <p class="card-text">
+                <strong>Номерной знак:</strong> @VehicleData.LicensePlate
+            </p>
+            <p class="card-text">
+                <strong>Расход топлива:</strong> @VehicleData.FuelRate литров
+            </p>
+        </div>
+    </div>
+}
+else if (!string.IsNullOrEmpty(ErrorMessage))
+{
+    <div class="alert alert-danger" role="alert">
+        @ErrorMessage
+    </div>
+}
+
+@code {
+    private string? SearchLicensePlate { get; set; }
+    private bool IsLoading { get; set; }
+    private string? ErrorMessage { get; set; }
+    private Vehicle? VehicleData { get; set; }
+
+    private async Task FetchVehicleInfo()
+    {
+        if (string.IsNullOrWhiteSpace(SearchLicensePlate))
+        {
+            ErrorMessage = "Введите номерной знак.";
+            VehicleData = null;
+            return;
+        }
+
+        IsLoading = true;
+        ErrorMessage = null;
+        VehicleData = null;
+
+        try
+        {
+            VehicleData = await GetVehicleByLicensePlate(SearchLicensePlate);
+
+            if (VehicleData == null)
+            {
+                ErrorMessage = "Транспортное средство не найдено.";
+            }
+        }
+        catch (Exception ex)
+        {
+            ErrorMessage = $"Произошла ошибка: {ex.Message}";
+        }
+        finally
+        {
+            IsLoading = false;
+        }
+    }
+
+    private async Task<Vehicle?> GetVehicleByLicensePlate(string id)
+    {
+        string query = "query {vehicles(where: {id: {eq:" + $"{id}" + "}}) {make, model, year, capacity, licensePlate, fuelRate}}";
+        string queryType = "vehicles";
+        var result = await Query.ExecuteQueryReturnListAsync<Vehicle>(queryType, query);
+        if (result.Count > 0)
+        {
+            VehicleData = result[0];
+            return VehicleData;
+        }
+
+        return null;
+    }
+
+}

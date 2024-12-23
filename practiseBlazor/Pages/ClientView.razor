@@ -1,0 +1,48 @@
+﻿@page "/clients"
+@using practiseBlazor.DataAccess
+@using practiseBlazor.Models
+<h3>Все клиенты</h3>
+
+@if (_allClients.Count == 0)
+{
+    <p>
+        <em>Loading ...</em>
+    </p>
+}
+else
+{
+    <table class="table">
+        <thead>
+        <tr>
+            <th>Name</th>
+            <th>Address</th>
+            <th>Phone</th>
+            <th>Email</th>
+        </tr>
+        </thead>
+        <tbody>
+        @foreach (var post in _allClients)
+        {
+            <tr>
+                <td>@post.Name</td>
+                <td>@post.Address</td>
+                <td>@post.Phone</td>
+                <td>@post.Email</td>
+            </tr>
+        }
+        </tbody>
+    </table>
+}
+
+@code {
+    private List<Client> _allClients = new List<Client>();
+
+    protected override async Task OnInitializedAsync()
+    {
+        string query = "query{clients{name, address, phone, email}}";
+        string queryType = "clients";
+        var result = await Query.ExecuteQueryReturnListAsync<Client>(queryType, query);
+        _allClients = result;
+    }
+
+}

@@ -1,0 +1,99 @@
+﻿@page "/driverInfo"
+@using System.Globalization
+@using practiseBlazor.DataAccess
+@using practiseBlazor.Models
+<PageTitle>Данные о водителе</PageTitle>
+
+<h3>Информация о водителе</h3>
+
+<div class="mb-4">
+    <input @bind="SearchId" @bind:event="oninput" type="number" class="form-control" placeholder="Введите ID водителя"/>
+    <button class="btn btn-primary mt-2" @onclick="FetchDriverInfo">Поиск</button>
+</div>
+
+@if (IsLoading)
+{
+    <div class="spinner-border text-primary" role="status">
+        <span class="visually-hidden">Loading...</span>
+    </div>
+}
+else if (DriverData != null)
+{
+    <div class="card">
+        <div class="card-header bg-primary text-white">
+            Информация о водителе
+        </div>
+        <div class="card-body">
+            <h5 class="card-title">Имя: @DriverData.Name</h5>
+            <p class="card-text">
+                <strong>Лицензия:</strong> @DriverData.LicenseNumber
+            </p>
+            <p class="card-text">
+                <strong>Номер телефона:</strong> @DriverData.Phone
+            </p>
+            <p class="card-text">
+                <strong>Устроился:</strong> @DriverData.DateOfHire.ToString("D", CultureInfo.CurrentCulture)
+            </p>
+        </div>
+    </div>
+}
+else if (!string.IsNullOrEmpty(ErrorMessage))
+{
+    <div class="alert alert-danger" role="alert">
+        @ErrorMessage
+    </div>
+}
+
+@code {
+    private long? SearchId { get; set; }
+    private bool IsLoading { get; set; }
+    private string? ErrorMessage { get; set; }
+    private Driver? DriverData { get; set; }
+
+    private async Task FetchDriverInfo()
+    {
+        if (SearchId == null || SearchId <= 0)
+        {
+            ErrorMessage = "Введите существующий ID водителя";
+            DriverData = null;
+            return;
+        }
+
+        IsLoading = true;
+        ErrorMessage = null;
+        DriverData = null;
+
+        try
+        {
+            DriverData = await GetDriverById(SearchId.Value);
+
+            if (DriverData == null)
+            {
+                ErrorMessage = "Водитель не найден";
+            }
+        }
+        catch (Exception ex)
+        {
+            ErrorMessage = $"Ошибка: {ex.Message}";
+        }
+        finally
+        {
+            IsLoading = false;
+        }
+    }
+
+    private async Task<Driver?> GetDriverById(long id)
+    {
+        string query = "query {drivers(where: {id: {eq:" + $"{id}" + "}}) {name, phone, licenseNumber, dateOfHire}}";
+        string queryType = "drivers";
+        var result = await Query.ExecuteQueryReturnListAsync<Driver>(queryType, query);
+        if (result.Count > 0)
+        {
+            DriverData = result[0];
+            return DriverData;
+        }
+
+        return null;
+    }
+
+}
