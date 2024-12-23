@@ -18,6 +18,7 @@ else
             <th>Лицензия</th>
             <th>Телефон</th>
             <th>Дата устройства на работу</th>
+            <th>Рабочие дни</th>
         </tr>
         </thead>
         <tbody>
@@ -28,6 +29,7 @@ else
                 <td>@post.LicenseNumber</td>
                 <td>@post.Phone</td>
                 <td>@post.DateOfHire</td>
+                <td>@post.WorkTime</td>
             </tr>
         }
         </tbody>
@@ -35,14 +37,34 @@ else
 }
 
 @code {
-    private List<Driver> _allClients = new List<Driver>();
+    private List<DriverData> _allClients = new List<DriverData>();
 
     protected override async Task OnInitializedAsync()
     {
-        string query = "query{drivers{name, licenseNumber, phone, dateOfHire}}";
+        string query = "query{drivers{name, licenseNumber, phone, dateOfHire, waybills {date}}}";
         string queryType = "drivers";
         var result = await Query.ExecuteQueryReturnListAsync<Driver>(queryType, query);
-        _allClients = result;
+        var processedData = result
+            .Select(driver => new DriverData
+            {
+                Name = driver.Name,
+                LicenseNumber = driver.LicenseNumber,
+                Phone = driver.Phone,
+                DateOfHire = driver.DateOfHire,
+                WorkTime = string.Join(", ", driver.Waybills.Select(item => item.Date))
+            })
+            .ToList();
+        
+        _allClients = processedData;
+    }
+
+    public class DriverData
+    {
+        public string Name { get; set; }
+        public long LicenseNumber { get; set; }
+        public string Phone { get; set; }
+        public DateTime DateOfHire { get; set; }
+        public string WorkTime { get; set; }
     }
 
 }

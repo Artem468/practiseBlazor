@@ -1,0 +1,62 @@
+﻿@page "/waybills"
+@using practiseBlazor.DataAccess
+@using practiseBlazor.Models
+<h3>Путевые листы</h3>
+
+<div>
+    <label for="filterDate">Start Date:</label>
+    <input type="date" id="filterDate" @bind="_filterDate"/>
+</div>
+<div>
+    <button class="btn btn-primary mt-2" @onclick="FetchWaybillInfo">Поиск</button>
+</div>
+
+@if (_allClients.Count == 0)
+{
+    <p>
+        <em>Loading ...</em>
+    </p>
+}
+else
+{
+    <table class="table">
+        <thead>
+        <tr>
+            <th>Дата</th>
+            <th>Клиент</th>
+            <th>Машина</th>
+            <th>Водитель</th>
+            <th>Начало</th>
+            <th>Конец</th>
+            <th>Дистанция</th>
+        </tr>
+        </thead>
+        <tbody>
+        @foreach (var post in _allClients)
+        {
+            <tr>
+                <td>@post.Date</td>
+                <td>@post.Client.Name</td>
+                <td>@post.Vehicle.LicensePlate</td>
+                <td>@post.Driver.Name</td>
+                <td>@post.RouteStart</td>
+                <td>@post.RouteEnd</td>
+                <td>@post.Distance</td>
+            </tr>
+        }
+        </tbody>
+    </table>
+}
+
+@code {
+    private DateTime _filterDate = DateTime.Now;
+    private List<Waybill> _allClients = new List<Waybill>();
+
+    private async Task FetchWaybillInfo()
+    {
+        string query = "query{waybills {date, client {name}, vehicle {licensePlate}, driver {name}, routeStart, routeEnd, distance} }";
+        string queryType = "waybills";
+        var result = await Query.ExecuteQueryReturnListAsync<Waybill>(queryType, query);
+        _allClients = result.Where(item => item.Date.Date == _filterDate.Date).ToList();
+    }
+}

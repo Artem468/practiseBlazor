@@ -26,8 +26,16 @@ build_property._RazorSourceGeneratorDebug =
 build_metadata.AdditionalFiles.TargetPath = QXBwLnJhem9y
 build_metadata.AdditionalFiles.CssScope = 
 
+[C:/Users/Artem/Desktop/projects/practiseBlazor/practiseBlazor/Pages/AddWaybill.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcQWRkV2F5YmlsbC5yYXpvcg==
+build_metadata.AdditionalFiles.CssScope = 
+
 [C:/Users/Artem/Desktop/projects/practiseBlazor/practiseBlazor/Pages/ClientView.razor]
 build_metadata.AdditionalFiles.TargetPath = UGFnZXNcQ2xpZW50Vmlldy5yYXpvcg==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/Artem/Desktop/projects/practiseBlazor/practiseBlazor/Pages/CommonData.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcQ29tbW9uRGF0YS5yYXpvcg==
 build_metadata.AdditionalFiles.CssScope = 
 
 [C:/Users/Artem/Desktop/projects/practiseBlazor/practiseBlazor/Pages/DriversInfo.razor]
@@ -52,6 +60,10 @@ build_metadata.AdditionalFiles.CssScope =
 
 [C:/Users/Artem/Desktop/projects/practiseBlazor/practiseBlazor/Pages/VehicleView.razor]
 build_metadata.AdditionalFiles.TargetPath = UGFnZXNcVmVoaWNsZVZpZXcucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/Artem/Desktop/projects/practiseBlazor/practiseBlazor/Pages/WaybillView.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcV2F5YmlsbFZpZXcucmF6b3I=
 build_metadata.AdditionalFiles.CssScope = 
 
 [C:/Users/Artem/Desktop/projects/practiseBlazor/practiseBlazor/_Imports.razor]

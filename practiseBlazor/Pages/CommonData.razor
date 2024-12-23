@@ -1,0 +1,48 @@
+﻿@page "/commonData"
+@using practiseBlazor.DataAccess
+@using practiseBlazor.Models
+<h3>Общие показатели</h3>
+
+@if (_allClients.Count == 0)
+{
+    <p>
+        <em>Loading ...</em>
+    </p>
+}
+else
+{
+    <p>Общая дистаниция: @_allFuelRate километорв</p>
+    <p>Общий расход: @_allFuelRate литров</p>
+}
+
+@code {
+    private List<VehicleObj> _allClients = new List<VehicleObj>();
+    private decimal _allDistance = 0;
+    private decimal _allFuelRate = 0;
+    protected override async Task OnInitializedAsync()
+    {
+        string query = "query{vehicles{fuelRate, waybills {distance}}}";
+        string queryType = "vehicles";
+        var result = await Query.ExecuteQueryReturnListAsync<Vehicle>(queryType, query);
+        var processedData = result.Select(vehicle => new VehicleObj
+            {
+                FuelRate = vehicle.FuelRate,
+                CommonDistance = vehicle.Waybills.Sum(item => item.Distance),
+                CommonFuelRate = vehicle.Waybills.Sum(waybill => waybill.Distance) * vehicle.FuelRate / 100
+            })
+            .ToList();
+        _allClients = processedData;
+
+        _allDistance = processedData.Sum(d => d.CommonDistance);
+        _allFuelRate = processedData.Sum(f => f.CommonFuelRate);
+    }
+
+    public class VehicleObj
+    {
+        public decimal CommonDistance { get; set; }
+        public decimal CommonFuelRate { get; set; }
+        public int FuelRate { get; set; }
+    }
+
+
+}

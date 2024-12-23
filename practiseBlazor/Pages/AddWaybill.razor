@@ -1,0 +1,79 @@
+﻿@page "/addWaybills"
+@using practiseBlazor.DataAccess
+@using practiseBlazor.Models
+@inject NavigationManager Navigation
+<EditForm Model="@_trip" OnValidSubmit="HandleValidSubmit">
+    <DataAnnotationsValidator/>
+    <ValidationSummary/>
+
+    <div class="form-group">
+        <label for="Date">Date:</label>
+        <InputDate id="Date" class="form-control" @bind-Value="_trip.Date"/>
+    </div>
+
+    <div class="form-group">
+        <label for="ClientId">Client ID:</label>
+        <InputNumber id="ClientId" class="form-control" @bind-Value="_trip.ClientId"/>
+    </div>
+
+    <div class="form-group">
+        <label for="VehicleId">Vehicle ID:</label>
+        <InputNumber id="VehicleId" class="form-control" @bind-Value="_trip.VehicleId"/>
+    </div>
+
+    <div class="form-group">
+        <label for="DriverId">Driver ID:</label>
+        <InputNumber id="DriverId" class="form-control" @bind-Value="_trip.DriverId"/>
+    </div>
+
+    <div class="form-group">
+        <label for="RouteStart">Route Start:</label>
+        <InputText id="RouteStart" class="form-control" @bind-Value="_trip.RouteStart"/>
+    </div>
+
+    <div class="form-group">
+        <label for="RouteEnd">Route End:</label>
+        <InputText id="RouteEnd" class="form-control" @bind-Value="_trip.RouteEnd"/>
+    </div>
+
+    <div class="form-group">
+        <label for="Distance">Distance:</label>
+        <InputNumber id="Distance" class="form-control" @bind-Value="_trip.Distance"/>
+    </div>
+
+    <button type="submit" class="btn btn-primary">Submit</button>
+</EditForm>
+
+@code {
+    private Waybill _trip = new Waybill();
+
+    private async Task HandleValidSubmit()
+    {
+        // Преобразование даты в строку в формате ISO 8601
+        string dateString = _trip.Date.ToString("yyyy-MM-ddTHH:mm:ss");
+
+        // Формирование запроса GraphQL
+        string query = $@"
+            mutation {{
+              insertWaybill(
+                date: ""{dateString}"",
+                clientId: {_trip.ClientId},
+                vehicleId: {_trip.VehicleId},
+                driverId: {_trip.DriverId},
+                routeStart: ""{_trip.RouteStart}"",
+                routeEnd: ""{_trip.RouteEnd}"",
+                distance: {_trip.Distance}
+              ) {{
+                id
+              }}
+            }}
+        ";
+
+        // Название типа запроса
+        string queryType = "insertWaybill";
+
+        // Отправка запроса на сервер
+        await Query.ExecuteQueryAsync<Waybill>(queryType, query);
+        Navigation.NavigateTo("/", true);
+    }
+}
