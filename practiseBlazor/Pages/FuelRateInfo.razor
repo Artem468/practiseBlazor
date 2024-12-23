@@ -1,5 +1,96 @@
 ﻿@page "/fuelRateInfo"
+@using practiseBlazor.DataAccess
+@using practiseBlazor.Models
 
 <PageTitle>Расчет расхода топлива</PageTitle>
 
 <h3>Расчет расхода топлива</h3>
+
+<div>
+    <label for="startDate">Start Date:</label>
+    <input type="date" id="startDate" @bind="_startDate"/>
+
+    <label for="endDate">End Date:</label>
+    <input type="date" id="endDate" @bind="_endDate"/>
+</div>
+<div>
+    <button class="btn btn-primary mt-2" @onclick="FetchFuelInfo">Поиск</button>
+</div>
+@if (_allClients.Count == 0)
+{
+    <p>
+        <em>Загрузка...</em>
+    </p>
+}
+else
+{
+    <table class="table">
+        <thead>
+        <tr>
+            <th>Номерной знак</th>
+            <th>Производитель</th>
+            <th>Модель</th>
+            <th>Расход</th>
+            <th>Пробег (км)</th>
+        </tr>
+        </thead>
+        <tbody>
+        @foreach (var post in _allClients)
+        {
+            <tr>
+                <td>@post.LicensePlate</td>
+                <td>@post.Make</td>
+                <td>@post.Model</td>
+                <td>@post.FuelRateSum</td>
+                <td>@post.DistanceSum</td>
+            </tr>
+        }
+        </tbody>
+    </table>
+}
+
+@code {
+    private DateTime _startDate = DateTime.Now.AddDays(-7);
+    private DateTime _endDate = DateTime.Now;
+    private List<VehicleData> _allClients = new List<VehicleData>();
+
+    private async Task<List<VehicleData>?> FetchFuelInfo()
+    {
+        string query = "query{vehicles{make, model, licensePlate, fuelRate, waybills {date, distance}}}";
+        string queryType = "vehicles";
+
+        var result = await Query.ExecuteQueryReturnListAsync<Vehicle>(queryType, query);
+
+        var filteredVehicles = result
+            .Where(vehicle => vehicle.Waybills.Any(waybill => waybill.Date >= _startDate && waybill.Date <= _endDate))
+            .Select(vehicle => new VehicleData
+            {
+                Make = vehicle.Make,
+                Model = vehicle.Model,
+                LicensePlate = vehicle.LicensePlate,
+                FuelRate = vehicle.FuelRate,
+                Waybills = vehicle.Waybills
+                    .Where(waybill => waybill.Date >= _startDate && waybill.Date <= _endDate)
+                    .ToList(),
+                FuelRateSum = vehicle.Waybills.Sum(waybill => waybill.Distance) * vehicle.FuelRate / 100,
+                DistanceSum = vehicle.Waybills.Sum(waybill => waybill.Distance)
+            })
+            .ToList();
+
+        _allClients = filteredVehicles;
+
+        return filteredVehicles;
+    }
+
+    public class VehicleData
+    {
+        public string Make { get; set; }
+        public string Model { get; set; }
+        public string LicensePlate { get; set; }
+        public int FuelRate { get; set; }
+        public ICollection<Waybill> Waybills { get; set; }
+        public decimal FuelRateSum { get; set; }
+        public decimal DistanceSum { get; set; }
+    }
+
+}

@@ -11,6 +11,6 @@ namespace practiseBlazor.Models
         public int Capacity { get; set; }
         public string LicensePlate { get; set; }
         public int FuelRate { get; set; }
-        public ICollection<Waybill>? Waybills { get; set; }
+        public ICollection<Waybill> Waybills { get; set; }
     }
 }

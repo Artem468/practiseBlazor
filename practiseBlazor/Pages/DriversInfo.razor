@@ -1,0 +1,48 @@
+﻿@page "/drivers"
+@using practiseBlazor.DataAccess
+@using practiseBlazor.Models
+<h3>Все водители</h3>
+
+@if (_allClients.Count == 0)
+{
+    <p>
+        <em>Loading ...</em>
+    </p>
+}
+else
+{
+    <table class="table">
+        <thead>
+        <tr>
+            <th>Имя</th>
+            <th>Лицензия</th>
+            <th>Телефон</th>
+            <th>Дата устройства на работу</th>
+        </tr>
+        </thead>
+        <tbody>
+        @foreach (var post in _allClients)
+        {
+            <tr>
+                <td>@post.Name</td>
+                <td>@post.LicenseNumber</td>
+                <td>@post.Phone</td>
+                <td>@post.DateOfHire</td>
+            </tr>
+        }
+        </tbody>
+    </table>
+}
+
+@code {
+    private List<Driver> _allClients = new List<Driver>();
+
+    protected override async Task OnInitializedAsync()
+    {
+        string query = "query{drivers{name, licenseNumber, phone, dateOfHire}}";
+        string queryType = "drivers";
+        var result = await Query.ExecuteQueryReturnListAsync<Driver>(queryType, query);
+        _allClients = result;
+    }
+
+}

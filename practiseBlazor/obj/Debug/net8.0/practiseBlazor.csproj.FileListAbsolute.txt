@@ -1069,3 +1069,4 @@ C:\Users\Artem\Desktop\projects\practiseBlazor\practiseBlazor\obj\Debug\net8.0\c
 C:\Users\Artem\Desktop\projects\practiseBlazor\practiseBlazor\obj\Debug\net8.0\compressed\0mrqq4w5eo.gz
 C:\Users\Artem\Desktop\projects\practiseBlazor\practiseBlazor\obj\Debug\net8.0\compressed\c8w8aw24j6.gz
 C:\Users\Artem\Desktop\projects\practiseBlazor\practiseBlazor\obj\Debug\net8.0\compressed\hdm2fzgnz0.gz
+C:\Users\Artem\Desktop\projects\practiseBlazor\practiseBlazor\obj\Debug\net8.0\practiseBlazor.sourcelink.json

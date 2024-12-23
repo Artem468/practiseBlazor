@@ -1,0 +1,77 @@
+﻿@page "/vehicles"
+@using practiseBlazor.DataAccess
+@using practiseBlazor.Models
+<h3>Все машины</h3>
+
+@if (_allClients.Count == 0)
+{
+    <p>
+        <em>Loading ...</em>
+    </p>
+}
+else
+{
+    <table class="table">
+        <thead>
+        <tr>
+            <th>Производитель</th>
+            <th>Модель</th>
+            <th>Год создания</th>
+            <th>Вместимость</th>
+            <th>Лицензия</th>
+            <th>Расход на 100км</th>
+            <th>Даты испльзования</th>
+        </tr>
+        </thead>
+        <tbody>
+        @foreach (var post in _allClients)
+        {
+            <tr>
+                <td>@post.Make</td>
+                <td>@post.Model</td>
+                <td>@post.Year</td>
+                <td>@post.Capacity</td>
+                <td>@post.LicensePlate</td>
+                <td>@post.FuelRate</td>
+                <td>@post.Dates</td>
+            </tr>
+        }
+        </tbody>
+    </table>
+}
+
+@code {
+    private List<VehicleObj> _allClients = new List<VehicleObj>();
+
+    protected override async Task OnInitializedAsync()
+    {
+        string query = "query{vehicles{make, model, year, capacity, licensePlate, fuelRate, waybills {date}}}";
+        string queryType = "vehicles";
+        var result = await Query.ExecuteQueryReturnListAsync<Vehicle>(queryType, query);
+        var processedData = result.Select(vehicle => new VehicleObj
+            {
+                Make = vehicle.Make,
+                Model = vehicle.Model,
+                LicensePlate = vehicle.LicensePlate,
+                FuelRate = vehicle.FuelRate,
+                Year = vehicle.Year,
+                Capacity = vehicle.Capacity,
+                Dates = string.Join(", ", vehicle.Waybills.Select(i => i.Date.ToString("yyyy-MM-dd")))
+            })
+            .ToList();
+        _allClients = processedData;
+    }
+
+    public class VehicleObj
+    {
+        public string Make { get; set; }
+        public string Model { get; set; }
+        public int Year { get; set; }
+        public int Capacity { get; set; }
+        public string LicensePlate { get; set; }
+        public int FuelRate { get; set; }
+        public string Dates { get; set; }
+    }
+
+
+}
