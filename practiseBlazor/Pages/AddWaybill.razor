@@ -49,10 +49,8 @@
 
     private async Task HandleValidSubmit()
     {
-        // Преобразование даты в строку в формате ISO 8601
         string dateString = _trip.Date.ToString("yyyy-MM-ddTHH:mm:ss");
 
-        // Формирование запроса GraphQL
         string query = $@"
             mutation {{
               insertWaybill(
@@ -69,10 +67,8 @@
             }}
         ";
 
-        // Название типа запроса
         string queryType = "insertWaybill";
 
-        // Отправка запроса на сервер
         await Query.ExecuteQueryAsync<Waybill>(queryType, query);
         Navigation.NavigateTo("/", true);
     }
