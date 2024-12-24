@@ -8,7 +8,7 @@
 <h3>Информация о транспортном средстве</h3>
 
 <div class="mb-4">
-    <input @bind="SearchLicensePlate" @bind:event="oninput" type="text" class="form-control" placeholder="Введите ID машины"/>
+    <input @bind="SearchLicensePlate" @bind:event="oninput" type="text" class="form-control" placeholder="Введите гос. номер машины"/>
     <button class="btn btn-primary mt-2" @onclick="FetchVehicleInfo">Поиск</button>
 </div>
 
@@ -89,7 +89,7 @@ else if (!string.IsNullOrEmpty(ErrorMessage))
 
     private async Task<Vehicle?> GetVehicleByLicensePlate(string id)
     {
-        string query = "query {vehicles(where: {id: {eq:" + $"{id}" + "}}) {make, model, year, capacity, licensePlate, fuelRate}}";
+        string query = "query {vehicles(where: {licensePlate: {eq:" + $"\"{id}\"" + "}}) {make, model, year, capacity, licensePlate, fuelRate}}";
         string queryType = "vehicles";
         var result = await Query.ExecuteQueryReturnListAsync<Vehicle>(queryType, query);
         if (result.Count > 0)

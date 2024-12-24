@@ -7,7 +7,7 @@
 <h3>Информация о водителе</h3>
 
 <div class="mb-4">
-    <input @bind="SearchId" @bind:event="oninput" type="number" class="form-control" placeholder="Введите ID водителя"/>
+    <input @bind="SearchId" @bind:event="oninput" class="form-control" placeholder="Введите ФИО водителя"/>
     <button class="btn btn-primary mt-2" @onclick="FetchDriverInfo">Поиск</button>
 </div>
 
@@ -45,27 +45,20 @@ else if (!string.IsNullOrEmpty(ErrorMessage))
 }
 
 @code {
-    private long? SearchId { get; set; }
+    private string? SearchId { get; set; }
     private bool IsLoading { get; set; }
     private string? ErrorMessage { get; set; }
     private Driver? DriverData { get; set; }
 
     private async Task FetchDriverInfo()
     {
-        if (SearchId == null || SearchId <= 0)
-        {
-            ErrorMessage = "Введите существующий ID водителя";
-            DriverData = null;
-            return;
-        }
-
         IsLoading = true;
         ErrorMessage = null;
         DriverData = null;
 
         try
         {
-            DriverData = await GetDriverById(SearchId.Value);
+            if (SearchId != null) DriverData = await GetDriverById(SearchId);
 
             if (DriverData == null)
             {
@@ -82,9 +75,9 @@ else if (!string.IsNullOrEmpty(ErrorMessage))
         }
     }
 
-    private async Task<Driver?> GetDriverById(long id)
+    private async Task<Driver?> GetDriverById(string id)
     {
-        string query = "query {drivers(where: {id: {eq:" + $"{id}" + "}}) {name, phone, licenseNumber, dateOfHire}}";
+        string query = "query {drivers(where: {name: {contains: " + $"\"{id}\"" + "}}) {name, phone, licenseNumber, dateOfHire}}";
         string queryType = "drivers";
         var result = await Query.ExecuteQueryReturnListAsync<Driver>(queryType, query);
         if (result.Count > 0)

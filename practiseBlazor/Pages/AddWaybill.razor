@@ -2,6 +2,7 @@
 @using practiseBlazor.DataAccess
 @using practiseBlazor.Models
 @inject NavigationManager Navigation
+
 <EditForm Model="@_trip" OnValidSubmit="HandleValidSubmit">
     <DataAnnotationsValidator/>
     <ValidationSummary/>
@@ -12,18 +13,36 @@
     </div>
 
     <div class="form-group">
-        <label for="ClientId">Client ID:</label>
-        <InputNumber id="ClientId" class="form-control" @bind-Value="_trip.ClientId"/>
+        <label for="ClientId">Client:</label>
+        <InputSelect id="ClientId" class="form-control" @bind-Value="_trip.ClientId">
+            <option value="">-- Select Client --</option>
+            @foreach (var client in _clients)
+            {
+                <option value="@client.Id">@client.Name</option>
+            }
+        </InputSelect>
     </div>
 
     <div class="form-group">
-        <label for="VehicleId">Vehicle ID:</label>
-        <InputNumber id="VehicleId" class="form-control" @bind-Value="_trip.VehicleId"/>
+        <label for="VehicleId">Vehicle:</label>
+        <InputSelect id="VehicleId" class="form-control" @bind-Value="_trip.VehicleId">
+            <option value="">-- Select Vehicle --</option>
+            @foreach (var vehicle in _vehicles)
+            {
+                <option value="@vehicle.Id">@vehicle.LicensePlate</option>
+            }
+        </InputSelect>
     </div>
 
     <div class="form-group">
-        <label for="DriverId">Driver ID:</label>
-        <InputNumber id="DriverId" class="form-control" @bind-Value="_trip.DriverId"/>
+        <label for="DriverId">Driver:</label>
+        <InputSelect id="DriverId" class="form-control" @bind-Value="_trip.DriverId">
+            <option value="">-- Select Driver --</option>
+            @foreach (var driver in _drivers)
+            {
+                <option value="@driver.Id">@driver.Name</option>
+            }
+        </InputSelect>
     </div>
 
     <div class="form-group">
@@ -46,13 +65,21 @@
 
 @code {
     private Waybill _trip = new Waybill();
+    private List<Client> _clients = new List<Client>();
+    private List<Vehicle> _vehicles = new List<Vehicle>();
+    private List<Driver> _drivers = new List<Driver>();
+
+    protected override async Task OnInitializedAsync()
+    {
+        _clients = await GetClientsAsync();
+        _vehicles = await GetVehiclesAsync();
+        _drivers = await GetDriversAsync();
+    }
 
     private async Task HandleValidSubmit()
     {
-        // Преобразование даты в строку в формате ISO 8601
         string dateString = _trip.Date.ToString("yyyy-MM-ddTHH:mm:ss");
 
-        // Формирование запроса GraphQL
         string query = $@"
             mutation {{
               insertWaybill(
@@ -69,11 +96,34 @@
             }}
         ";
 
-        // Название типа запроса
         string queryType = "insertWaybill";
 
-        // Отправка запроса на сервер
         await Query.ExecuteQueryAsync<Waybill>(queryType, query);
         Navigation.NavigateTo("/", true);
     }
+
+    private async Task<List<Client>> GetClientsAsync()
+    {
+        string query = "query{clients{id, name}}";
+        string queryType = "clients";
+        var result = await Query.ExecuteQueryReturnListAsync<Client>(queryType, query);
+        return result;
+    }
+    
+    private async Task<List<Vehicle>> GetVehiclesAsync()
+    {
+        string query = "query{vehicles{id, licensePlate}}";
+        string queryType = "vehicles";
+        var result = await Query.ExecuteQueryReturnListAsync<Vehicle>(queryType, query);
+        return result;
+    }
+    
+    private async Task<List<Driver>> GetDriversAsync()
+    {
+        string query = "query{drivers{id, name}}";
+        string queryType = "drivers";
+        var result = await Query.ExecuteQueryReturnListAsync<Driver>(queryType, query);
+        return result;
+    }
+
 }
